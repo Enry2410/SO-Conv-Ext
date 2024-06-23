@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "reserva.h": "c",
+        "shared_data.h": "c"
+    }
+}
