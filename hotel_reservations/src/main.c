@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <string.h>
+#include <assert.h>
 #include "reserva.h"
 #include "shared_data.h"
 #include "proceso_reserva.h"
@@ -18,6 +20,7 @@ int main() {
     printf("Seleccione el modo de operación:\n");
     printf("1. Usar hilos\n");
     printf("2. Usar procesos\n");
+    printf("3. Probar funcionalidades\n");
     printf("Ingrese su opción: ");
     scanf("%d", &opcion);
 
@@ -35,10 +38,19 @@ int main() {
         pthread_join(hilo2, NULL);
     } else if (opcion == 2) {
         // Implementación con procesos y pipes
-        consultar_reservas_proceso_pipe(shared_data, pipe_consulta_fd);
+        consultar_reservas_proceso(shared_data, pipe_consulta_fd);
 
         Reserva reserva_actualizar = {1, "Nuevo Cliente Proceso", "2024-06-25", "2024-06-30", 102};
-        actualizar_reserva_proceso_pipe(shared_data, &reserva_actualizar, pipe_actualiza_fd);
+        actualizar_reserva_proceso(shared_data, &reserva_actualizar, pipe_actualiza_fd);
+    } else if (opcion == 3){
+        void test_crear_reserva();
+        printf("\n Función de crear exito\n");
+        void test_modificar_reserva();
+        printf("\n Funcion de modificar exito\n");
+        void test_eliminar_reserva();
+        printf("\n Función de agregar exito\n");
+        printf("\n Funcion eliminar exito\n");
+
     } else {
         printf("Opción inválida.\n");
     }
@@ -50,4 +62,43 @@ int main() {
     destroy_shared_data(shared_data);
 
     return 0;
+}
+
+void test_crear_reserva(){
+    Nodo* reserva = crear_reserva(1, "Juan Perez", "24/10/2020", "31/10/2020", 113);
+    assert(reserva != NULL);
+    assert(reserva->reserva.id == 1);
+    assert(strcmp(reserva->reserva.cliente, "Juan Perez")==0);
+    free(reserva);
+}
+
+void test_modificar_reserva(){
+    Nodo* reserva = crear_reserva(1, "Juan Perez", "24/10/2020", "31/10/2020", 113);
+    modificar_reserva(reserva, 1, "Juan Marquez", "24/10/2020", "31/10/2020", 114);
+    assert(reserva != NULL);
+    assert(reserva->reserva.id == 1);
+    assert(strcmp(reserva->reserva.cliente, "Juan Marquez")==0);
+    assert(reserva->reserva.habitacion == 114);
+    free(reserva);
+}
+
+void test_eliminar_reserva(){
+    Nodo* reserva = crear_reserva(1, "Juan Perez", "24/10/2020", "31/10/2020", 113);
+    Nodo* nuevaReserva = crear_reserva(2, "Juan Marquez", "24/10/2020", "31/10/2020", 114);
+    agregar_reserva(&reserva, nuevaReserva);
+    
+    
+    eliminar_reserva(&reserva, 2);
+    Nodo* compara = buscar_reserva(reserva, 2);
+    assert(compara == NULL);
+    while (reserva!= NULL) {
+
+        Nodo* next = reserva->siguiente;
+
+        free(reserva);
+
+        reserva = next;
+    }
+    free(nuevaReserva);
+    free(compara);
 }

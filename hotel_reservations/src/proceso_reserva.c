@@ -6,7 +6,7 @@
 #include "shared_data.h"
 #include "proceso_reserva.h"
 
-void consultar_reservas_proceso(SharedData* shared_data, int pipe_fd[2]) {
+void* consultar_reservas_proceso(SharedData* shared_data, int pipe_fd[2]) {
     pid_t pid = fork();
     if (pid == 0) {
         // Proceso hijo para consulta de reservas
@@ -36,9 +36,10 @@ void consultar_reservas_proceso(SharedData* shared_data, int pipe_fd[2]) {
         perror("fork");
         exit(EXIT_FAILURE);
     }
+    return NULL;
 }
 
-void actualizar_reserva_proceso(SharedData* shared_data, Reserva* reserva, int pipe_fd[2]) {
+void* actualizar_reserva_proceso(SharedData* shared_data, Reserva* reserva, int pipe_fd[2]) {
     pid_t pid = fork();
     if (pid == 0) {
         // Proceso hijo para actualización de reserva
@@ -63,4 +64,5 @@ void actualizar_reserva_proceso(SharedData* shared_data, Reserva* reserva, int p
         perror("fork");
         exit(EXIT_FAILURE);
     }
+    return NULL;
 }
