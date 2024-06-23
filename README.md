@@ -22,8 +22,3 @@ Para ejecutar el programa principal:
 ```sh
 ./hotel_reservations
 ```
-
-Para ejecutar la simulación de solicitudes de reserva:
-```sh
-./simulacion
-```
