@@ -21,16 +21,13 @@ SharedData* init_shared_data() {
         perror("shmget");
         exit(1);
     }
-
     SharedData* shared_data = (SharedData*)shmat(shm_id, NULL, 0);
     if (shared_data == (SharedData*)-1) {
         perror("shmat");
         exit(1);
     }
-
     sem_init(&shared_data->semaforo, 1, 1);
     shared_data->reservas = NULL; // Iniciar la lista de reservas como NULL
-
     return shared_data;
 }
 
@@ -42,7 +39,6 @@ void destroy_shared_data(SharedData* shared_data) {
         actual = actual->siguiente;
         free(temp);
     }
-
     sem_destroy(&shared_data->semaforo);
     shmdt(shared_data);
 }
@@ -87,7 +83,7 @@ void comunicacion_con_sockets(SharedData* shared_data) {
         exit(EXIT_FAILURE);
     }
 
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt))) {
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
         perror("setsockopt");
         exit(EXIT_FAILURE);
     }
@@ -127,7 +123,8 @@ void guardar_reservas(Nodo* head) {
         exit(EXIT_FAILURE);
     }
     while (head) {
-        fprintf(file, "%d,%s,%s,%s,%d\n", head->reserva.id, head->reserva.cliente, head->reserva.fecha_inicio, head->reserva.fecha_fin, head->reserva.habitacion);
+        fprintf(file, "%d,%s,%s,%s,%d\n", head->reserva.id, head->reserva.cliente, 
+            head->reserva.fecha_inicio, head->reserva.fecha_fin, head->reserva.habitacion);
         head = head->siguiente;
     }
     fclose(file);
@@ -141,7 +138,8 @@ Nodo* cargar_reservas() {
     }
     Nodo* head = NULL;
     Reserva r;
-    while (fscanf(file, "%d,%[^,],%[^,],%[^,],%d\n", &r.id, r.cliente, r.fecha_inicio, r.fecha_fin, &r.habitacion) != EOF) {
+    while (fscanf(file, "%d,%[^,],%[^,],%[^,],%d\n", &r.id, r.cliente, r.fecha_inicio, 
+        r.fecha_fin, &r.habitacion) != EOF) {
         Nodo* nuevo = crear_reserva(r.id, r.cliente, r.fecha_inicio, r.fecha_fin, r.habitacion);
         agregar_reserva(&head, nuevo);
     }

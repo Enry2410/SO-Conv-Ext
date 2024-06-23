@@ -1,45 +1,52 @@
-// Función principal del programa
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
 #include "reserva.h"
 #include "shared_data.h"
 #include "proceso_reserva.h"
-
-void crear_hilos_para_operaciones(SharedData* shared_data) {
-    pthread_t hilo1, hilo2;
-    Reserva reserva = {1, "Cliente Actualizado", "2024-06-05", "2024-06-15", 102};
-
-    pthread_create(&hilo1, NULL, consultar_reservas, (void*)shared_data);
-    void* args[2] = {shared_data, &reserva};
-    pthread_create(&hilo2, NULL, actualizar_reserva, (void*)args);
-
-    pthread_join(hilo1, NULL);
-    pthread_join(hilo2, NULL);
-}
+#include "hilos.h"
 
 int main() {
     SharedData* shared_data = init_shared_data();
 
+    int pipe_consulta_fd[2], pipe_actualiza_fd[2];
+
     // Cargar reservas desde el archivo
     shared_data->reservas = cargar_reservas();
 
-    // Creación de procesos para reservas
-    crear_procesos_para_reservas(shared_data);
+    int opcion;
+    printf("Seleccione el modo de operación:\n");
+    printf("1. Usar hilos\n");
+    printf("2. Usar procesos\n");
+    printf("Ingrese su opción: ");
+    scanf("%d", &opcion);
 
-    // Simulación de operaciones concurrentes con hilos
-    crear_hilos_para_operaciones(shared_data);
+    if (opcion == 1) {
+        // Crear hilos para consultas y actualizaciones
+        pthread_t hilo1, hilo2;
+        pthread_create(&hilo1, NULL, consultar_reservas_hilo, (void*)shared_data);
 
-    // Comunicación con pipes
-    comunicacion_con_pipes(shared_data);
+        Reserva reserva_actualizar = {1, "Nuevo Cliente Hilo", "2024-06-25", "2024-06-30", 102};
+        void* args[] = {shared_data, &reserva_actualizar};
+        pthread_create(&hilo2, NULL, actualizar_reservas_hilo, (void*)args);
 
-    // Comunicación con sockets
-    comunicacion_con_sockets(shared_data);
+        // Esperar a que los hilos terminen
+        pthread_join(hilo1, NULL);
+        pthread_join(hilo2, NULL);
+    } else if (opcion == 2) {
+        // Implementación con procesos y pipes
+        consultar_reservas_proceso_pipe(shared_data, pipe_consulta_fd);
+
+        Reserva reserva_actualizar = {1, "Nuevo Cliente Proceso", "2024-06-25", "2024-06-30", 102};
+        actualizar_reserva_proceso_pipe(shared_data, &reserva_actualizar, pipe_actualiza_fd);
+    } else {
+        printf("Opción inválida.\n");
+    }
 
     // Guardar reservas en el archivo
     guardar_reservas(shared_data->reservas);
 
+    // Limpiar recursos compartidos
     destroy_shared_data(shared_data);
 
     return 0;

@@ -3,10 +3,7 @@
 
 #include "shared_data.h"
 
-// Función para manejar una solicitud de reserva.
-void manejar_solicitud_reserva(Nodo** reservas, int id, const char* cliente, const char* fecha_inicio, const char* fecha_fin, int habitacion);
-
-// Función para crear procesos y manejar solicitudes de reservas.
-void crear_procesos_para_reservas(SharedData* shared_data);
+void* consultar_reservas_proceso(SharedData* shared_data, int* pipe_fd[2]);
+void* actualizar_reserva_proceso(SharedData* shared_data, Reserva* reserva, int* pipe_fd[2]);
 
 #endif

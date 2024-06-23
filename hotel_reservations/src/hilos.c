@@ -1,18 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
+#include <semaphore.h>
 #include "reserva.h"
 #include "shared_data.h"
 
-void* consultar_reservas(void* arg) {
+void* consultar_reservas_hilo(void* arg) {
     SharedData* shared_data = (SharedData*)arg;
 
     sem_wait(&shared_data->semaforo);
     Nodo* actual = shared_data->reservas;
     while (actual != NULL) {
-        printf("Reserva ID: %d, Cliente: %s, Fecha Inicio: %s, Fecha Fin: %s, Habitación: %d\n",
-               actual->reserva.id, actual->reserva.cliente, actual->reserva.fecha_inicio,
-               actual->reserva.fecha_fin, actual->reserva.habitacion);
+        printf("Reserva ID: %d, Cliente: %s, Fecha Inicio: %s, Fecha Fin: %s, Habitacion: %d\n",
+            actual->reserva.id, actual->reserva.cliente, actual->reserva.fecha_inicio, 
+            actual->reserva.fecha_fin, actual->reserva.habitacion);
         actual = actual->siguiente;
     }
     sem_post(&shared_data->semaforo);
@@ -20,7 +21,7 @@ void* consultar_reservas(void* arg) {
     return NULL;
 }
 
-void* actualizar_reserva(void* arg) {
+void* actualizar_reservas_hilo(void* arg) {
     void** args = (void**)arg;
     SharedData* shared_data = (SharedData*)args[0];
     Reserva* nueva_reserva = (Reserva*)args[1];
