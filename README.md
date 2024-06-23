@@ -11,14 +11,14 @@ Este proyecto implementa un sistema de reservas de hoteles utilizando C en Linux
 
 ## Compilación
 
-Para compilar el proyecto, simplemente ejecuta:
+Para compilar el proyecto navega al directorio donde se encuentra el archivo Makefile e introduce la siguiente linea en tu terminal:
 
 ```sh
 make
 ```
 
 ## Ejecución
-Para ejecutar el programa principal:
+Para ejecutar el programa principal, introduce la siguiente linea en tu terminal:
 ```sh
 ./hotel_reservations
 ```
